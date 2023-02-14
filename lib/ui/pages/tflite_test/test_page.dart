@@ -37,9 +37,7 @@ class TestPage extends StatelessWidget {
 runTFlite() async {
   try {
     print("1");
-    // File modelFile = File("assets/model.tflite");
     print("2");
-    // final interpreter = Interpreter.fromFile(modelFile);
     final interpreter = await Interpreter.fromAsset("model.tflite");
     print("3");
     // ignore: deprecated_member_use
