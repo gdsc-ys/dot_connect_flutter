@@ -29,6 +29,13 @@
             {
               "client_id": "758270948258-uug1fc6orhcrc69c3vcr90sejne8fbdg.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "758270948258-jmqsgke3aqkfgc5bjh3qod5c6fton86p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dotConnectFlutter"
+              }
             }
           ]
         }

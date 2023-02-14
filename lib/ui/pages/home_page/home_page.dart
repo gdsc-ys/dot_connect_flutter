@@ -40,6 +40,7 @@ class HomePage extends ConsumerWidget {
                 style: TextStyle(color: Colors.blue),
               ),
             ),
+            SizedBox(height: 10,),
             GestureDetector(
               onTap: () {
                 RouteUtil().pushNamed(context, RouteNames.login.path);
@@ -59,6 +60,17 @@ class HomePage extends ConsumerWidget {
                 style: TextStyle(color: Colors.blue),
               ),
             ),
+            SizedBox(height: 10,),
+            GestureDetector(
+              onTap: () {
+                RouteUtil().pushNamed(context, RouteNames.test.path);
+              },
+              child: Text(
+                "GO TO TEST",
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+            SizedBox(height: 10,),
           ],
         ),
       ),
