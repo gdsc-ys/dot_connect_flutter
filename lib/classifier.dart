@@ -18,7 +18,7 @@ class Classifier {
   TfLiteType? _inputType;
   TfLiteType? _outputType;
 
-  final String _labelsFileName = 'assets/labels.txt';
+  final String _labelsFileName = 'assets/labelmap.txt';
 
   final int _labelsLength = 1001;
 
@@ -28,8 +28,8 @@ class Classifier {
 
   String modelName = "detect.tflite";
 
-  NormalizeOp get preProcessNormalizeOp => NormalizeOp(0, 1);
-  NormalizeOp get postProcessNormalizeOp => NormalizeOp(0, 255);
+  // NormalizeOp get preProcessNormalizeOp => NormalizeOp(0, 1);
+  // NormalizeOp get postProcessNormalizeOp => NormalizeOp(0, 255);
 
   Classifier({int? numThreads}) {
     _interpreterOptions = InterpreterOptions();
@@ -55,7 +55,7 @@ class Classifier {
 
       _outputBuffer = TensorBuffer.createFixedSize(_outputShape!, _outputType!);
       _probabilityProcessor =
-          TensorProcessorBuilder().add(postProcessNormalizeOp).build();
+          TensorProcessorBuilder().build();
     } catch (e) {
       print('Unable to create interpreter, Caught Exception: ${e.toString()}');
     }
@@ -76,7 +76,6 @@ class Classifier {
         .add(ResizeWithCropOrPadOp(cropSize, cropSize))
         .add(ResizeOp(
             _inputShape![1], _inputShape![2], ResizeMethod.NEAREST_NEIGHBOUR))
-        .add(preProcessNormalizeOp)
         .build()
         .process(_inputImage!);
   }

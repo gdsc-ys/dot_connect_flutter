@@ -25,8 +25,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    print("results : $results");
-
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: Colors.black,
