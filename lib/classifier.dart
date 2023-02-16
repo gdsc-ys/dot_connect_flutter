@@ -5,37 +5,37 @@ import 'package:collection/collection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
-abstract class Classifier {
-  late Interpreter interpreter;
-  late InterpreterOptions _interpreterOptions;
+class Classifier {
+  Interpreter? interpreter;
+  InterpreterOptions? _interpreterOptions;
 
-  late List<int> _inputShape;
-  late List<int> _outputShape;
+  List<int>? _inputShape;
+  List<int>? _outputShape;
 
-  late TensorImage _inputImage;
-  late TensorBuffer _outputBuffer;
+  TensorImage? _inputImage;
+  TensorBuffer? _outputBuffer;
 
-  late TfLiteType _inputType;
-  late TfLiteType _outputType;
+  TfLiteType? _inputType;
+  TfLiteType? _outputType;
 
   final String _labelsFileName = 'assets/labels.txt';
 
   final int _labelsLength = 1001;
 
-  late var _probabilityProcessor;
+  var _probabilityProcessor;
 
-  late List<String> labels;
+  List<String>? labels;
 
-  String get modelName;
+  String modelName = "detect.tflite";
 
-  NormalizeOp get preProcessNormalizeOp;
-  NormalizeOp get postProcessNormalizeOp;
+  NormalizeOp get preProcessNormalizeOp => NormalizeOp(0, 1);
+  NormalizeOp get postProcessNormalizeOp => NormalizeOp(0, 255);
 
   Classifier({int? numThreads}) {
     _interpreterOptions = InterpreterOptions();
 
     if (numThreads != null) {
-      _interpreterOptions.threads = numThreads;
+      _interpreterOptions!.threads = numThreads;
     }
 
     loadModel();
@@ -48,12 +48,12 @@ abstract class Classifier {
           await Interpreter.fromAsset(modelName, options: _interpreterOptions);
       print('Interpreter Created Successfully');
 
-      _inputShape = interpreter.getInputTensor(0).shape;
-      _outputShape = interpreter.getOutputTensor(0).shape;
-      _inputType = interpreter.getInputTensor(0).type;
-      _outputType = interpreter.getOutputTensor(0).type;
+      _inputShape = interpreter!.getInputTensor(0).shape;
+      _outputShape = interpreter!.getOutputTensor(0).shape;
+      _inputType = interpreter!.getInputTensor(0).type;
+      _outputType = interpreter!.getOutputTensor(0).type;
 
-      _outputBuffer = TensorBuffer.createFixedSize(_outputShape, _outputType);
+      _outputBuffer = TensorBuffer.createFixedSize(_outputShape!, _outputType!);
       _probabilityProcessor =
           TensorProcessorBuilder().add(postProcessNormalizeOp).build();
     } catch (e) {
@@ -63,7 +63,7 @@ abstract class Classifier {
 
   Future<void> loadLabels() async {
     labels = await FileUtil.loadLabels(_labelsFileName);
-    if (labels.length == _labelsLength) {
+    if (labels!.length == _labelsLength) {
       print('Labels loaded successfully');
     } else {
       print('Unable to load labels');
@@ -71,33 +71,33 @@ abstract class Classifier {
   }
 
   TensorImage _preProcess() {
-    int cropSize = min(_inputImage.height, _inputImage.width);
+    int cropSize = min(_inputImage!.height, _inputImage!.width);
     return ImageProcessorBuilder()
         .add(ResizeWithCropOrPadOp(cropSize, cropSize))
         .add(ResizeOp(
-            _inputShape[1], _inputShape[2], ResizeMethod.NEAREST_NEIGHBOUR))
+            _inputShape![1], _inputShape![2], ResizeMethod.NEAREST_NEIGHBOUR))
         .add(preProcessNormalizeOp)
         .build()
-        .process(_inputImage);
+        .process(_inputImage!);
   }
 
   Category predict(Image image) {
     final pres = DateTime.now().millisecondsSinceEpoch;
-    _inputImage = TensorImage(_inputType);
-    _inputImage.loadImage(image);
+    _inputImage = TensorImage(_inputType!);
+    _inputImage!.loadImage(image);
     _inputImage = _preProcess();
     final pre = DateTime.now().millisecondsSinceEpoch - pres;
 
     print('Time to load image: $pre ms');
 
     final runs = DateTime.now().millisecondsSinceEpoch;
-    interpreter.run(_inputImage.buffer, _outputBuffer.getBuffer());
+    interpreter!.run(_inputImage!.buffer, _outputBuffer!.getBuffer());
     final run = DateTime.now().millisecondsSinceEpoch - runs;
 
     print('Time to run inference: $run ms');
 
     Map<String, double> labeledProb = TensorLabel.fromList(
-            labels, _probabilityProcessor.process(_outputBuffer))
+            labels!, _probabilityProcessor.process(_outputBuffer))
         .getMapWithFloatValue();
     final pred = getTopProbability(labeledProb);
 
@@ -105,7 +105,7 @@ abstract class Classifier {
   }
 
   void close() {
-    interpreter.close();
+    interpreter!.close();
   }
 }
 
